@@ -14,9 +14,13 @@ def serve_image(filename):
 def serve_script(filename):
     return send_from_directory('static/js', filename)
 
-@app.route('/load_test', methods=['GET'])
+@app.route('/load-test', methods=['GET'])
 def loadTest():
-    return "Test API endpoint"
+    return jsonify({"code": 201})
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template("index.html")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
