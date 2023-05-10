@@ -12,6 +12,8 @@ Additionally, provide an easy way to view the output of this application in a ma
 ## Running the program
 In the root directory, use a terminal to run server.py (python server.py)\
 Once that is running, on the terminal you will see *Running on http://127.0.0.1:8080* - this is url to use in your browser.\
-However if you wish to connect to the server from a different device, on the terminal you will see another url just below *http://127.0.0.1:8080*, copy that url, go to the static/js/config.js file and you will see a line like this\
+However if you wish to connect to the server from a different device, on the terminal you will see another url just below *http://127.0.0.1:8080*, copy that url, go to the static/js/config.js file and you will see a line the following line\
 *const SERVER_IP = "http://127.0.0.1:8080"* \
-Replace the *http://127.0.0.1:8080* with the url you just copied. Now enter the url in a browser on a different device.
+Replace the *http://127.0.0.1:8080* with the url you just copied.\ 
+Save changes and re-run the server\n
+Now enter the url in a browser on a different device.
