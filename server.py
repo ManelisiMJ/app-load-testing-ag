@@ -7,18 +7,22 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/images/<filename>')
+@cross_origin()
 def serve_image(filename):
     return send_from_directory('static/images', filename)
 
 @app.route('/js/<filename>')
+@cross_origin()
 def serve_script(filename):
     return send_from_directory('static/js', filename)
 
 @app.route('/load-test', methods=['GET'])
+@cross_origin()
 def loadTest():
     return jsonify({"code": 201})
 
 @app.route('/', methods=['GET'])
+@cross_origin()
 def index():
     return render_template("index.html")
 
