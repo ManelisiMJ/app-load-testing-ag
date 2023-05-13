@@ -17,3 +17,6 @@ However if you wish to connect to the server from a different device, on the ter
 Replace the *http://127.0.0.1:8080* with the url you just copied.\ 
 Save changes and re-run the server\n
 Now enter the url in a browser on a different device.
+
+## Supported browsers
+Chrome, Firefox, Safari, Microsoft Edge
