@@ -89,6 +89,7 @@ function visualizeResponseTimes(){
     .append("svg")
     .attr("width", svgWidth)
     .attr("height", svgHeight)
+    .attr("id", "graph-response")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -302,7 +303,7 @@ function visualizeMinTime(){
     const xScale = d3
     .scaleBand()
     .domain(data.map((obj, index) => index.toString()))
-    .range([0, width])
+    .range([0, d3.max(data, (obj) => obj.numRequests)])
     .padding(0.1);
 
     const yScale = d3
@@ -385,9 +386,10 @@ function visualizeMaxTime(){
     .text("Response time (ms)");
 
     // Setting up scales for x and y axes
+
     const xScale = d3
     .scaleBand()
-    .domain(data.map((obj, index) => index.toString()))
+    .domain(data.map((obj) => obj.numRequests.toString()))
     .range([0, width])
     .padding(0.1);
 
