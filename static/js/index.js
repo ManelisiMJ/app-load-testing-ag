@@ -66,30 +66,25 @@ function visualizeResponseTimes(){
         x: obj.numRequests,
         y: obj.avgResponseTime,
     }));
-    
-    // Printing the extracted data for verification
-    console.log(plotData);
 
-    // Setting up the SVG container dimensions
-    
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
-    const svgWidth = 600
-    const svgHeight = 400
+    // SVG container dimensions
+    const svgWidth = 600;
+    const svgHeight = 400;
+    const margin = { top: 60, right: 60, bottom: 60, left: 60 };
     const width = svgWidth - margin.left - margin.right;
     const height = svgHeight - margin.top - margin.bottom;
 
-    // Creating the SVG container
-    const svg = d3
-    .select("body")
+    // Create the SVG container for the scatter plot
+    const scatterPlotContainer = d3
+    .select("#response")
     .append("svg")
     .attr("width", svgWidth)
     .attr("height", svgHeight)
     .append("g")
-    .attr("id", "graph-response")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Adding the graph title
-    svg
+    scatterPlotContainer
     .append("text")
     .attr("x", width / 2)
     .attr("y", -margin.top / 2)
@@ -97,23 +92,23 @@ function visualizeResponseTimes(){
     .style("font-size", "22px")
     .text("Number of Requests vs Average response time");
 
-    svg
+    scatterPlotContainer
     .append("text")
     .attr("x", width / 2)
     .attr("y", height + margin.bottom)
     .attr("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "17px")
     .text("Number of Requests");
 
     // Adding y-axis title
-    svg
+    scatterPlotContainer
     .append("text")
     .attr("transform", "rotate(-90)")
     .attr("x", -height / 2)
     .attr("y", -margin.left)
     .attr("dy", "1em")
     .attr("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "17px")
     .text("Response Time (ms)");
 
     // Setting up scales for x and y axes
@@ -127,17 +122,17 @@ function visualizeResponseTimes(){
     .domain([0, d3.max(plotData, (d) => d.y)])
     .range([height, 0]);
 
-    // Adding x-axis
-    svg
+    // Adding x-axis to the scatter plot
+    scatterPlotContainer
     .append("g")
     .attr("transform", `translate(0, ${height})`)
     .call(d3.axisBottom(xScale));
 
-    // Adding y-axis
-    svg.append("g").call(d3.axisLeft(yScale));
+    // Adding y-axis to the scatter plot
+    scatterPlotContainer.append("g").call(d3.axisLeft(yScale));
 
-    // Adding the data points as circles
-    svg
+    // Adding circles as data points to the scatter plot
+    scatterPlotContainer
     .selectAll("circle")
     .data(plotData)
     .enter()
@@ -157,12 +152,9 @@ function visualizeBytesSent(){
 
     // Extracting the data points
     const plotData = data.map((obj, index) => ({
-        x: obj.bytesSent,
-        y: obj.avgResponseTime,
+        x: obj.numRequests,
+        y: obj.bytesSent,
     }));
-    
-    // Printing the extracted data for verification
-    console.log(plotData);
 
     // Setting up the SVG container dimensions
     
@@ -173,8 +165,7 @@ function visualizeBytesSent(){
     const height = svgHeight - margin.top - margin.bottom;
 
     // Creating the SVG container
-    const svg = d3
-    .select("body")
+    const svg = d3.select("#bytes")
     .append("svg")
     .attr("width", svgWidth)
     .attr("height", svgHeight)
@@ -208,7 +199,7 @@ function visualizeBytesSent(){
     .attr("dy", "1em")
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
-    .text("Response Time (ms)");
+    .text("Bytes sent");
 
     // Setting up scales for x and y axes
     const xScale = d3
@@ -246,6 +237,178 @@ function visualizeBytesSent(){
     .attr("d", line);
 }
 
+function visualizeMinTime(){
+    try {
+        d3.select("#graph-min").remove();
+    } catch (error) {
+        console.log("graph not yet there")
+    }
+
+    // Setting up the SVG container dimensions
+    
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const svgWidth = 600
+    const svgHeight = 400
+    const width = svgWidth - margin.left - margin.right;
+    const height = svgHeight - margin.top - margin.bottom;
+
+    // Creating the SVG container
+    const svg = d3.select("#min")
+    .append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight)
+    .append("g")
+    .attr("id", "graph-min")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Adding the graph title
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "25px")
+    .text("Minimum response times");
+
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Number of Requests");
+
+    // Adding y-axis title
+    svg
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left)
+    .attr("dy", "1em")
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Response time (ms)");
+
+    // Setting up scales for x and y axes
+    const xScale = d3
+    .scaleBand()
+    .domain(data.map((obj, index) => index.toString()))
+    .range([0, width])
+    .padding(0.1);
+
+    const yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(data, (obj) => obj.minResponseTime)])
+    .range([height, 0]);
+
+    // Adding x-axis
+    svg
+    .append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(xScale));
+
+    // Adding y-axis
+    svg.append("g").call(d3.axisLeft(yScale));
+
+    // Adding the bars
+    svg
+    .selectAll("rect")
+    .data(data)
+    .enter()
+    .append("rect")
+    .attr("x", (d, i) => xScale(i.toString()))
+    .attr("y", (d) => yScale(d.minResponseTime))
+    .attr("width", xScale.bandwidth())
+    .attr("height", (d) => height - yScale(d.minResponseTime))
+    .attr("fill", "steelblue");
+}
+
+function visualizeMaxTime(){
+    try {
+        d3.select("#graph-max").remove();
+    } catch (error) {
+        console.log("graph not yet there")
+    }
+
+    // Setting up the SVG container dimensions
+    
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const svgWidth = 600
+    const svgHeight = 400
+    const width = svgWidth - margin.left - margin.right;
+    const height = svgHeight - margin.top - margin.bottom;
+
+    // Creating the SVG container
+    const svg = d3.select("#max")
+    .append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight)
+    .append("g")
+    .attr("id", "graph-max")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Adding the graph title
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "25px")
+    .text("Maximum response times");
+
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Number of Requests");
+
+    // Adding y-axis title
+    svg
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left)
+    .attr("dy", "1em")
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Response time (ms)");
+
+    // Setting up scales for x and y axes
+    const xScale = d3
+    .scaleBand()
+    .domain(data.map((obj, index) => index.toString()))
+    .range([0, width])
+    .padding(0.1);
+
+    const yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(data, (obj) => obj.minResponseTime)])
+    .range([height, 0]);
+
+    // Adding x-axis
+    svg
+    .append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(xScale));
+
+    // Adding y-axis
+    svg.append("g").call(d3.axisLeft(yScale));
+
+    // Adding the bars
+    svg
+    .selectAll("rect")
+    .data(data)
+    .enter()
+    .append("rect")
+    .attr("x", (d, i) => xScale(i.toString()))
+    .attr("y", (d) => yScale(d.minResponseTime))
+    .attr("width", xScale.bandwidth())
+    .attr("height", (d) => height - yScale(d.minResponseTime))
+    .attr("fill", "red");
+}
+
 testButton.addEventListener("click", ()=>{
     data = []
     loadTest(url)
@@ -255,6 +418,8 @@ testButton.addEventListener("click", ()=>{
 visualizeButton.addEventListener("click", ()=>{
     visualizeResponseTimes()
     visualizeBytesSent()
+    visualizeMinTime()
+    visualizeMaxTime()
 })
 
 
