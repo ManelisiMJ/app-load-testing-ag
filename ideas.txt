@@ -1,0 +1,10 @@
+Response status codes: Count and distribution of different response status codes (e.g., 200, 404, 500) returned by the endpoint.
+Error rate: Percentage of failed or erroneous responses.
+Throughput: Number of requests processed per unit of time (e.g., requests per second).
+Latency: Average, minimum, and maximum time taken for each request to receive a response.
+Concurrent connections: Number of simultaneous connections established with the endpoint.
+Payload size: Size of the request and response payloads.
+DNS resolution time: Time taken for DNS resolution before establishing the connection.
+Connection time: Time taken to establish a connection with the endpoint.
+SSL/TLS handshake time: Time taken for the SSL/TLS handshake process if applicable.
+Redirects: Number of redirects encountered during the requests.
