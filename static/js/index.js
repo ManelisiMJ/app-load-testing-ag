@@ -58,7 +58,7 @@ function loadTest(endpointUrl){
                                 "maxResponseTime": maxResponseTime,
                                 "minResponseTime": minResponseTime,
                                 "bytesSent": totalbytes,
-                                "throughput": numRequests/avgResponseTime  //Throughput in requests per second
+                                "throughput": numRequests/1000  //Throughput in requests per second
                             }
                             data.push(dataPoint)    //Add dataPoint to data array
                             //data array has been completed, hide the loader
@@ -461,7 +461,7 @@ function visualizeThroughput(){
     // Extracting the data points
     const plotData = data.map((obj, index) => ({
         x: obj.numRequests,
-        y: obj.avgResponseTime,
+        y: obj.throughput,
     }));
 
     // SVG container dimensions
@@ -477,7 +477,7 @@ function visualizeThroughput(){
     .append("svg")
     .attr("width", svgWidth)
     .attr("height", svgHeight)
-    .attr("id", "graph-response")
+    .attr("id", "graph-throughput")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -488,7 +488,7 @@ function visualizeThroughput(){
     .attr("y", -margin.top / 2)
     .attr("text-anchor", "middle")
     .style("font-size", "22px")
-    .text("Throughput vs Number of Requests");
+    .text("Number of Requests vs Throughput");
 
     scatterPlotContainer
     .append("text")
@@ -507,7 +507,7 @@ function visualizeThroughput(){
     .attr("dy", "1em")
     .attr("text-anchor", "middle")
     .style("font-size", "17px")
-    .text("Response Time (ms)");
+    .text("Throughput (requests/second)");
 
     // Setting up scales for x and y axes
     const xScale = d3
