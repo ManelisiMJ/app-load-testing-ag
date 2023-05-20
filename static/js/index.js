@@ -302,8 +302,8 @@ function visualizeMinTime(){
     // Setting up scales for x and y axes
     const xScale = d3
     .scaleBand()
-    .domain(data.map((obj, index) => index.toString()))
-    .range([0, d3.max(data, (obj) => obj.numRequests)])
+    .domain(data.map((obj) => obj.numRequests.toString()))
+    .range([0, width])
     .padding(0.1);
 
     const yScale = d3
@@ -326,7 +326,7 @@ function visualizeMinTime(){
     .data(data)
     .enter()
     .append("rect")
-    .attr("x", (d, i) => xScale(i.toString()))
+    .attr("x", (d) => xScale(d.numRequests.toString()))
     .attr("y", (d) => yScale(d.minResponseTime))
     .attr("width", xScale.bandwidth())
     .attr("height", (d) => height - yScale(d.minResponseTime))
@@ -386,7 +386,6 @@ function visualizeMaxTime(){
     .text("Response time (ms)");
 
     // Setting up scales for x and y axes
-
     const xScale = d3
     .scaleBand()
     .domain(data.map((obj) => obj.numRequests.toString()))
@@ -413,11 +412,11 @@ function visualizeMaxTime(){
     .data(data)
     .enter()
     .append("rect")
-    .attr("x", (d, i) => xScale(i.toString()))
+    .attr("x", (d) => xScale(d.numRequests.toString()))
     .attr("y", (d) => yScale(d.minResponseTime))
     .attr("width", xScale.bandwidth())
     .attr("height", (d) => height - yScale(d.minResponseTime))
-    .attr("fill", "red");
+    .attr("fill", "orange");
 }
 
 testButton.addEventListener("click", ()=>{
