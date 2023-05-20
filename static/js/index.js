@@ -3,13 +3,20 @@
 import SERVER_IP from './config.js' //Server's IP address
 const testButton = document.getElementById("start-test")
 const visualizeButton = document.getElementById("visualize")
+visualizeButton.disabled = true     //Disable the visualize button for now
 const startBox = document.getElementById("start")
 const endBox = document.getElementById("end")
 const intervalBox = document.getElementById("interval")
+const loader = document.getElementById("loader")
 const url = `${SERVER_IP}/load-test`    //API endpoint in flask server
-let data = []
+let data = []       //Array to hold all the collected data
 
+/**
+ * Sends a variable number of http requests to the server
+ * @param {*} endpointUrl the localhost url of the server
+ */
 function loadTest(endpointUrl){
+    visualizeButton.disabled = true
     let minRequests =  Number.parseInt(startBox.value) || 10    //Start number of requests
     let maxRequests = Number.parseInt(endBox.value) || 100    //End number of requests
     let interval = Number.parseInt(intervalBox.value) || 10        //Interval to increment requests
@@ -53,6 +60,11 @@ function loadTest(endpointUrl){
                                 "bytesSent": totalbytes
                             }
                             data.push(dataPoint)    //Add dataPoint to data array
+                            //data array has been completed, hide the loader
+                            if (data.length === Number.parseInt((maxRequests-minRequests+interval)/interval)){
+                                loader.classList.add("loader--hidden")
+                                visualizeButton.disabled = false
+                            }
                         }
                     })
                     .catch(error => {
@@ -63,9 +75,13 @@ function loadTest(endpointUrl){
     }
 }
 
+/**
+ * Creates a scatter plot to visualize the average response times
+ * Uses the d3.js library
+ */
 function visualizeResponseTimes(){
     try {
-        d3.select("#graph-response").remove();
+        d3.select("#graph-response").remove()
     } catch (error) {
         console.log("graph not yet there")
     }
@@ -102,6 +118,7 @@ function visualizeResponseTimes(){
     .style("font-size", "22px")
     .text("Number of Requests vs Average response time");
 
+    //Adding the x-axis title
     scatterPlotContainer
     .append("text")
     .attr("x", width / 2)
@@ -153,9 +170,13 @@ function visualizeResponseTimes(){
     .style("fill", "steelblue");
 }
 
+/**
+ * Creates a line chart to visualize the total bytes sent
+ * Uses the d3.js library to draw the line chart
+ */
 function visualizeBytesSent(){
     try {
-        d3.select("#graph-bytes").remove();
+        d3.select("#graph-bytes").remove()
     } catch (error) {
         console.log("graph not yet there")
     }
@@ -168,14 +189,15 @@ function visualizeBytesSent(){
 
     // Setting up the SVG container dimensions
     
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const margin = { top: 60, right: 60, bottom: 60, left: 60 };
     const svgWidth = 600
     const svgHeight = 400
     const width = svgWidth - margin.left - margin.right;
     const height = svgHeight - margin.top - margin.bottom;
 
     // Creating the SVG container
-    const svg = d3.select("#bytes")
+    const lineContainer = d3
+    .select("#bytes")
     .append("svg")
     .attr("width", svgWidth)
     .attr("height", svgHeight)
@@ -184,31 +206,32 @@ function visualizeBytesSent(){
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Adding the graph title
-    svg
+    lineContainer
     .append("text")
     .attr("x", width / 2)
     .attr("y", -margin.top / 2)
     .attr("text-anchor", "middle")
-    .style("font-size", "25px")
+    .style("font-size", "22px")
     .text("Number of Requests vs Bytes sent");
 
-    svg
+    // Adding the x-axis title
+    lineContainer
     .append("text")
     .attr("x", width / 2)
     .attr("y", height + margin.bottom)
     .attr("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "17px")
     .text("Number of Requests");
 
     // Adding y-axis title
-    svg
+    lineContainer
     .append("text")
     .attr("transform", "rotate(-90)")
     .attr("x", -height / 2)
     .attr("y", -margin.left)
     .attr("dy", "1em")
     .attr("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "17px")
     .text("Bytes sent");
 
     // Setting up scales for x and y axes
@@ -223,13 +246,13 @@ function visualizeBytesSent(){
     .range([height, 0]);
 
     // Adding x-axis
-    svg
+    lineContainer
     .append("g")
     .attr("transform", `translate(0, ${height})`)
     .call(d3.axisBottom(xScale));
 
     // Adding y-axis
-    svg.append("g").call(d3.axisLeft(yScale));
+    lineContainer.append("g").call(d3.axisLeft(yScale));
 
     // Creating the line generator
     const line = d3
@@ -238,15 +261,19 @@ function visualizeBytesSent(){
     .y((d) => yScale(d.y));
 
     // Adding the line
-    svg
+    lineContainer
     .append("path")
     .datum(plotData)
     .attr("fill", "none")
-    .attr("stroke", "steelblue")
+    .attr("stroke", "orange")
     .attr("stroke-width", 2)
     .attr("d", line);
 }
 
+/**
+ * Creates a bar chart to visualize the minimum response times
+ * Uses the d3.js library
+ */
 function visualizeMinTime(){
     try {
         d3.select("#graph-min").remove();
@@ -256,7 +283,7 @@ function visualizeMinTime(){
 
     // Setting up the SVG container dimensions
     
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const margin = { top: 60, right: 60, bottom: 60, left: 60 };
     const svgWidth = 600
     const svgHeight = 400
     const width = svgWidth - margin.left - margin.right;
@@ -333,16 +360,20 @@ function visualizeMinTime(){
     .attr("fill", "steelblue");
 }
 
+/**
+ * Creates a bar chart to visualize the maximum response times
+ * Uses the d3.js library to draw the bar chart
+ */
 function visualizeMaxTime(){
     try {
-        d3.select("#graph-max").remove();
+        d3.select("#graph-max").remove()
     } catch (error) {
         console.log("graph not yet there")
     }
 
     // Setting up the SVG container dimensions
     
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const margin = { top: 60, right: 60, bottom: 60, left: 60 };
     const svgWidth = 600
     const svgHeight = 400
     const width = svgWidth - margin.left - margin.right;
@@ -363,7 +394,7 @@ function visualizeMaxTime(){
     .attr("x", width / 2)
     .attr("y", -margin.top / 2)
     .attr("text-anchor", "middle")
-    .style("font-size", "25px")
+    .style("font-size", "22px")
     .text("Maximum response times");
 
     svg
@@ -371,7 +402,7 @@ function visualizeMaxTime(){
     .attr("x", width / 2)
     .attr("y", height + margin.bottom)
     .attr("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "17px")
     .text("Number of Requests");
 
     // Adding y-axis title
@@ -382,7 +413,7 @@ function visualizeMaxTime(){
     .attr("y", -margin.left)
     .attr("dy", "1em")
     .attr("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "17px")
     .text("Response time (ms)");
 
     // Setting up scales for x and y axes
@@ -420,16 +451,21 @@ function visualizeMaxTime(){
 }
 
 testButton.addEventListener("click", ()=>{
+    loader.classList.remove("loader--hidden")   //Show the loader
     data = []
-    loadTest(url)
+    loadTest(url)       //Start test
     console.log("data =", data)
 })
 
+/**
+ * Draws the different graphs to represent the data
+ */
 visualizeButton.addEventListener("click", ()=>{
     visualizeResponseTimes()
     visualizeBytesSent()
     visualizeMinTime()
     visualizeMaxTime()
+    visualizeButton.disabled = true
 })
 
 
