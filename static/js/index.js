@@ -50,7 +50,8 @@ function loadTest(endpointUrl){
                                 "avgResponseTime": avgResponseTime,
                                 "maxResponseTime": maxResponseTime,
                                 "minResponseTime": minResponseTime,
-                                "bytesSent": totalbytes
+                                "bytesSent": totalbytes,
+                                "throughput": numRequests/avgResponseTime  //Throughput in requests per second
                             }
                             data.push(dataPoint)    //Add dataPoint to data array
                         }
@@ -419,6 +420,96 @@ function visualizeMaxTime(){
     .attr("fill", "orange");
 }
 
+function visualizeThroughput(){
+    try {
+        d3.select("#graph-throughput").remove();
+    } catch (error) {
+        console.log("graph not yet there")
+    }
+
+    // Extracting the data points
+    const plotData = data.map((obj, index) => ({
+        x: obj.numRequests,
+        y: obj.avgResponseTime,
+    }));
+
+    // SVG container dimensions
+    const svgWidth = 600;
+    const svgHeight = 400;
+    const margin = { top: 60, right: 60, bottom: 60, left: 60 };
+    const width = svgWidth - margin.left - margin.right;
+    const height = svgHeight - margin.top - margin.bottom;
+
+    // Create the SVG container for the scatter plot
+    const scatterPlotContainer = d3
+    .select("#throughput")
+    .append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight)
+    .attr("id", "graph-response")
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Adding the graph title
+    scatterPlotContainer
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "22px")
+    .text("Throughput vs Number of Requests");
+
+    scatterPlotContainer
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom)
+    .attr("text-anchor", "middle")
+    .style("font-size", "17px")
+    .text("Number of Requests");
+
+    // Adding y-axis title
+    scatterPlotContainer
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left)
+    .attr("dy", "1em")
+    .attr("text-anchor", "middle")
+    .style("font-size", "17px")
+    .text("Response Time (ms)");
+
+    // Setting up scales for x and y axes
+    const xScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(plotData, (d) => d.x)])
+    .range([0, width]);
+
+    const yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(plotData, (d) => d.y)])
+    .range([height, 0]);
+
+    // Adding x-axis to the scatter plot
+    scatterPlotContainer
+    .append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(xScale));
+
+    // Adding y-axis to the scatter plot
+    scatterPlotContainer.append("g").call(d3.axisLeft(yScale));
+
+    // Adding circles as data points to the scatter plot
+    scatterPlotContainer
+    .selectAll("circle")
+    .data(plotData)
+    .enter()
+    .append("circle")
+    .attr("cx", (d) => xScale(d.x))
+    .attr("cy", (d) => yScale(d.y))
+    .attr("r", 4)
+    .style("fill", "steelblue");
+}
+
 testButton.addEventListener("click", ()=>{
     data = []
     loadTest(url)
@@ -430,6 +521,7 @@ visualizeButton.addEventListener("click", ()=>{
     visualizeBytesSent()
     visualizeMinTime()
     visualizeMaxTime()
+    visualizeThroughput()
 })
 
 
