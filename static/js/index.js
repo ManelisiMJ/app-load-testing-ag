@@ -5,8 +5,8 @@ const testButton = document.getElementById("start-test")
 const visualizeButton = document.getElementById("visualize")
 const url = `${SERVER_IP}/load-test`    //API endpoint in flask server
 let minRequests = 10    //Start number of requests
-let maxRequests = 15    //End number of requests
-let interval = 1        //Interval to increment requests
+let maxRequests = 100    //End number of requests
+let interval = 10        //Interval to increment requests
 let data = []
 
 function loadTest(endpointUrl){
@@ -54,7 +54,13 @@ function loadTest(endpointUrl){
     }
 }
 
-function visualize(){
+function visualizeResponseTimes(){
+    try {
+        d3.select("#graph-response").remove();
+    } catch (error) {
+        console.log("graph not yet there")
+    }
+
     // Extracting the data points
     const plotData = data.map((obj, index) => ({
         x: obj.numRequests,
@@ -65,11 +71,12 @@ function visualize(){
     console.log(plotData);
 
     // Setting up the SVG container dimensions
-    const width = 500;
-    const height = 300;
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-    const svgWidth = width + margin.left + margin.right;
-    const svgHeight = height + margin.top + margin.bottom;
+    
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const svgWidth = 600
+    const svgHeight = 400
+    const width = svgWidth - margin.left - margin.right;
+    const height = svgHeight - margin.top - margin.bottom;
 
     // Creating the SVG container
     const svg = d3
@@ -78,7 +85,36 @@ function visualize(){
     .attr("width", svgWidth)
     .attr("height", svgHeight)
     .append("g")
+    .attr("id", "graph-response")
     .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Adding the graph title
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "22px")
+    .text("Number of Requests vs Average response time");
+
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Number of Requests");
+
+    // Adding y-axis title
+    svg
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left)
+    .attr("dy", "1em")
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Response Time (ms)");
 
     // Setting up scales for x and y axes
     const xScale = d3
@@ -110,16 +146,115 @@ function visualize(){
     .attr("cy", (d) => yScale(d.y))
     .attr("r", 4)
     .style("fill", "steelblue");
+}
 
+function visualizeBytesSent(){
+    try {
+        d3.select("#graph-bytes").remove();
+    } catch (error) {
+        console.log("graph not yet there")
+    }
+
+    // Extracting the data points
+    const plotData = data.map((obj, index) => ({
+        x: obj.bytesSent,
+        y: obj.avgResponseTime,
+    }));
+    
+    // Printing the extracted data for verification
+    console.log(plotData);
+
+    // Setting up the SVG container dimensions
+    
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const svgWidth = 600
+    const svgHeight = 400
+    const width = svgWidth - margin.left - margin.right;
+    const height = svgHeight - margin.top - margin.bottom;
+
+    // Creating the SVG container
+    const svg = d3
+    .select("body")
+    .append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight)
+    .append("g")
+    .attr("id", "graph-bytes")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Adding the graph title
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "25px")
+    .text("Number of Requests vs Bytes sent");
+
+    svg
+    .append("text")
+    .attr("x", width / 2)
+    .attr("y", height + margin.bottom)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Number of Requests");
+
+    // Adding y-axis title
+    svg
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left)
+    .attr("dy", "1em")
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .text("Response Time (ms)");
+
+    // Setting up scales for x and y axes
+    const xScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(plotData, (d) => d.x)])
+    .range([0, width]);
+
+    const yScale = d3
+    .scaleLinear()
+    .domain([0, d3.max(plotData, (d) => d.y)])
+    .range([height, 0]);
+
+    // Adding x-axis
+    svg
+    .append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(xScale));
+
+    // Adding y-axis
+    svg.append("g").call(d3.axisLeft(yScale));
+
+    // Creating the line generator
+    const line = d3
+    .line()
+    .x((d) => xScale(d.x))
+    .y((d) => yScale(d.y));
+
+    // Adding the line
+    svg
+    .append("path")
+    .datum(plotData)
+    .attr("fill", "none")
+    .attr("stroke", "steelblue")
+    .attr("stroke-width", 2)
+    .attr("d", line);
 }
 
 testButton.addEventListener("click", ()=>{
+    data = []
     loadTest(url)
     console.log("data =", data)
 })
 
 visualizeButton.addEventListener("click", ()=>{
-    visualize()
+    visualizeResponseTimes()
+    visualizeBytesSent()
 })
 
 

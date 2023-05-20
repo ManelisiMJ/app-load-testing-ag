@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, render_template, send_from_directory
 from flask_cors import CORS, cross_origin
 
 # Instantiate the server
